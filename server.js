@@ -1,16 +1,19 @@
 const express = require('express')
 const mongoose = require('mongoose')
-const bodyparser = require('body-parser')
-const items = require('./routes/api/items')
+const config =  require('config')
+
+
 
 const app = express()
 
-app.use(bodyparser.json())
+app.use(express.json())
 
-const db = require('./config/keys').mongoURI
-
+const db = config.get('mongoURI')
 mongoose
-.connect(db)
+.connect(db, {
+    useNewUrlParser:true,
+    useCreateIndex:true,
+})
 .then(()=>{
     console.log('MongoDB Connected!')
 })
@@ -19,7 +22,9 @@ mongoose
 })
 
 
-app.use('/api/items', items)
+app.use('/api/items', require('./routes/api/items'))
+app.use('/api/users', require('./routes/api/users'))
+app.use('/api/auth', require('./routes/api/auth'))
 
 const port = process.env.PORT || 5000
 app.listen(port, ()=>{
